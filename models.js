@@ -38,6 +38,8 @@ const messageSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+}, {
+    timestamps: true,
 });
 
 const chatSchema = new mongoose.Schema({
@@ -62,6 +64,8 @@ const chatSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
     },
+}, {
+    timestamps: true,
 });
 
 const Message = mongoose.model('Message', messageSchema);
