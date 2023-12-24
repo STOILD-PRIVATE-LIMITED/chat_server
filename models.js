@@ -1,11 +1,6 @@
 const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        unique: true,
-        required: true,
-    },
     txt: {
         type: String,
         required: true,
@@ -14,21 +9,13 @@ const messageSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    createdAt: {
-        type: Date,
-        required: true,
-    },
-    modifiedAt: {
-        type: Date,
-        required: true,
-    },
     readBy: {
         type: [String],
-        unique: true,
+        unique: false,
     },
     indicative: {
         type: Boolean,
-        required: true,
+        required: false,
     },
     chatId: {
         type: String,
@@ -36,25 +23,20 @@ const messageSchema = new mongoose.Schema({
     },
     deletedAt: {
         type: String,
-        required: true,
+        required: false,
     },
 }, {
     timestamps: true,
 });
 
 const chatSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        unique: true,
-        required: true,
-    },
     title: {
         type: String,
         required: true,
     },
     description: {
         type: String,
-        required: true,
+        required: false,
     },
     participants: {
         type: [String],
@@ -62,7 +44,7 @@ const chatSchema = new mongoose.Schema({
     },
     locked: {
         type: Boolean,
-        required: true,
+        required: false,
     },
 }, {
     timestamps: true,
