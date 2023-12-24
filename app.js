@@ -17,6 +17,7 @@ print("Connected to MongoDB");
 
 const { Chat, Message } = require('./models');
 const validatePostRequest = require('./validations');
+const validateExtraFields = require('./validate_extra_fields');
 // print(`chat model: ${Chat}`);
 // print(`msg model: ${Message}`);
 
@@ -43,6 +44,7 @@ app.post('/chat', async (req, res) => {
   print(`post request at /chat`);
   print(`req.body = `, req.body);
   const err = validatePostRequest(req.body, Chat);
+  validateExtraFields(req.body, Chat);
   if (err != null) {
     console.error(err);
     res.status(400).json({ error: err });
@@ -98,6 +100,7 @@ app.post('/message/:chatId', async (req, res) => {
   print(`post request at /message/${req.params.chatId}`);
   req.body.chatId = req.params.chatId;
   const err = validatePostRequest(req.body, Message);
+  validateExtraFields(req.body, Message);
   if (err != null) {
     console.error(err);
     res.status(400).json({ error: err });
