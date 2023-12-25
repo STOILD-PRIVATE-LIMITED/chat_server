@@ -28,7 +28,7 @@ app.get('/', async (req, res) => {
 });
 
 // Endpoint to get chat data by ID
-app.get('/chat/:id', async (req, res) => {
+app.get('/chats/:id', async (req, res) => {
   print(`get request at /chat/${req.params.id}`);
   try {
     const chat = await Chat.findById(req.params.id);
@@ -40,7 +40,7 @@ app.get('/chat/:id', async (req, res) => {
 });
 
 // Endpoint to create a new chat
-app.post('/chat', async (req, res) => {
+app.post('/chats', async (req, res) => {
   print(`post request at /chat`);
   print(`req.body = `, req.body);
   const err = validatePostRequest(req.body, Chat);
@@ -59,17 +59,17 @@ app.post('/chat', async (req, res) => {
   }
 });
 
-// Endpoint to get chats with unread messages for a user
-app.get('/chats/unread/:userId', async (req, res) => {
-  print(`get request at /chats/unread/${req.params.userId}`);
-  try {
-    const unreadChats = await Chat.find({ participants: req.params.userId, 'messages.readBy': { $ne: req.params.userId } });
-    res.json(unreadChats);
-  } catch (error) {
-    res.status(500).json({ error: `${error}` });
-    print("Error: ", error);
-  }
-});
+// // Endpoint to get chats with unread messages for a user
+// app.get('/chats/unread/:userId', async (req, res) => {
+//   print(`get request at /chats/unread/${req.params.userId}`);
+//   try {
+//     const unreadChats = await Chat.find({ participants: req.params.userId, 'messages.readBy': { $ne: req.params.userId } });
+//     res.json(unreadChats);
+//   } catch (error) {
+//     res.status(500).json({ error: `${error}` });
+//     print("Error: ", error);
+//   }
+// });
 
 // Endpoint to get all chats for a user
 app.get('/chats/all/:userId', async (req, res) => {
@@ -84,19 +84,19 @@ app.get('/chats/all/:userId', async (req, res) => {
 });
 
 // Endpoint to get a message by ID
-app.get('/message/:id', async (req, res) => {
-  print(`get request at /message/${req.params.userId}`);
-  try {
-    const message = await Message.findById(req.params.id);
-    res.json(message);
-  } catch (error) {
-    res.status(500).json({ error: `${error}` });
-    print("Error: ", error);
-  }
-});
+// app.get('/messages/:id', async (req, res) => {
+//   print(`get request at /messages/${req.params.userId}`);
+//   try {
+//     const message = await Message.findById(req.params.id);
+//     res.json(message);
+//   } catch (error) {
+//     res.status(500).json({ error: `${error}` });
+//     print("Error: ", error);
+//   }
+// });
 
 // Endpoint to create a new message
-app.post('/message/:chatId', async (req, res) => {
+app.post('/messages/:chatId', async (req, res) => {
   print(`post request at /message/${req.params.chatId}`);
   req.body.chatId = req.params.chatId;
   const err = validatePostRequest(req.body, Message);
@@ -117,13 +117,20 @@ app.post('/message/:chatId', async (req, res) => {
 
 // Endpoint to get messages of a chat
 app.get('/messages/:chatId', async (req, res) => {
-  print(`get request at /messages/${req.params.chatId}`);
+  print(`get request at /messages/`, req.params.chatId);
   try {
     const { limit, startID } = req.query;
-    const messages = await Message.find({ chatId: req.params.chatId, _id: { $lte: startID } })
-      .sort({ createdAt: 'desc' })
-      .limit(limit ? parseInt(limit) : 10);
-    res.json(messages);
+    var messages = [];
+    if (!startID) {
+      messages = await Message.find({ chatId: req.params.chatId })
+        .sort({ createdAt: 'desc' })
+        .limit(limit ? parseInt(limit) : 10);
+    } else {
+      messages = await Message.find({ chatId: req.params.chatId, _id: { $lte: startID } })
+        .sort({ createdAt: 'desc' })
+        .limit(limit ? parseInt(limit) : 10);
+    }
+    res.status(200).json(messages);
   } catch (error) {
     res.status(500).json({ error: `${error}` });
     print("Error: ", error);
@@ -131,11 +138,11 @@ app.get('/messages/:chatId', async (req, res) => {
 });
 
 // Endpoint to add userID to the readBy array of a message
-app.post('/message/:id/readBy', async (req, res) => {
-  print(`get request at /message/${req.params.userId}/readBy`);
+app.post('/messages/:id/readBy', async (req, res) => {
+  print(`get request at /messages/${req.params.userId}/readBy`);
   try {
     const message = await Message.findByIdAndUpdate(req.params.id, { $addToSet: { readBy: req.body.userId } }, { new: true });
-    res.json(message);
+    res.status(200).json(message);
   } catch (error) {
     res.status(500).json({ error: `${error}` });
     print("Error: ", error);

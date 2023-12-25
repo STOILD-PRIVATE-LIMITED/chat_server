@@ -42,6 +42,10 @@ const chatSchema = new mongoose.Schema({
         type: [String],
         required: true,
     },
+    admins: {
+        type: [String],
+        required: true,
+    },
     locked: {
         type: Boolean,
         required: false,
