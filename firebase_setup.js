@@ -6,13 +6,17 @@ admin.initializeApp({
     databaseURL: "https://mastiplay-31ca8-default-rtdb.firebaseio.com"
 });
 
-function sendToDevice(token, payload) {
+function sendToDevice(token, payload, title, body) {
     console.log("Sending notification to", token);
     const data = JSON.stringify(payload);
     console.log("data = ", data);
     admin.messaging().send({
         "data": {
             message: data
+        },
+        "notification": {
+            title: title,
+            body: body
         },
         "token": token,
     });

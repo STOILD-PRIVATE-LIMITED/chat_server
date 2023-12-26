@@ -137,7 +137,7 @@ app.post('/messages/:chatId', async (req, res) => {
       console.log("participant found: ", user);
       if (user && user.token) {
         console.log("sending msg: to user", user);
-        sendToDevice(user.token, newMessage);
+        sendToDevice(user.token, newMessage, newMessage.from, newMessage.txt);
       }
     });
   } catch (error) {
