@@ -7,8 +7,13 @@ admin.initializeApp({
 });
 
 function sendToDevice(token, payload) {
+    console.log("Sending notification to", token);
+    const data = JSON.stringify(payload);
+    console.log("data = ", data);
     admin.messaging().send({
-        "data": payload,
+        "data": {
+            message: data
+        },
         "token": token,
     });
 }
