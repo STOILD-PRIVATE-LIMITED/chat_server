@@ -15,16 +15,34 @@ mongoose.connect('mongodb://localhost:27017/chats', {
 }).catch((error) => print(error));
 print("Connected to MongoDB");
 
-const { Chat, Message } = require('./models');
+const { Chat, Message, User } = require('./models');
 const validatePostRequest = require('./validations');
 const validateExtraFields = require('./validate_extra_fields');
-// print(`chat model: ${Chat}`);
-// print(`msg model: ${Message}`);
+const sendToDevice = require('./firebase_setup');
 
 app.use(bodyParser.json());
 
 app.get('/', async (req, res) => {
   res.sendFile(__dirname + '/index.html');
+});
+
+// Endpoint to store/update the fcm token of a user
+app.post('/users/:id', async (req, res) => {
+  print(`get request at /users/`, req.params.id);
+  const token = req.body.token;
+  print(`token:`, token);
+  print(`id:`, req.params.id);
+  try {
+    var user = await User.findOneAndUpdate(
+      { id: req.params.id },
+      { $set: { token: token } },
+      { new: true, upsert: true }
+    );
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: `${error}` });
+    print("Error: ", error);
+  }
 });
 
 // Endpoint to get chat data by ID
@@ -109,6 +127,19 @@ app.post('/messages/:chatId', async (req, res) => {
   try {
     const newMessage = await Message.create(req.body);
     res.json(newMessage);
+    const chat = await Chat.findById(req.params.chatId);
+    print("chat with id", req.params.chatId, "=", chat);
+    const participants = chat.participants;
+    print("participants", participants);
+    participants.forEach(async (participant) => {
+      console.log("finding participant: ", participant);
+      const user = await User.findOne({ id: participant });
+      console.log("participant found: ", user);
+      if (user && user.token) {
+        console.log("sending msg: to user", user);
+        sendToDevice(user.token, newMessage);
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: `${error}` });
     print("Error: ", error);
