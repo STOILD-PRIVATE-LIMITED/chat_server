@@ -166,15 +166,19 @@ app.get('/messages/:chatId', async (req, res) => {
   print(`get request at /messages/`, req.params.chatId);
   try {
     const { limit, startID } = req.query;
-    var messages = [];
+    let messages;
     if (!startID) {
-      messages = await Message.find({ chatId: req.params.chatId })
-        .sort({ createdAt: 'desc' })
-        .limit(limit ? parseInt(limit) : 10);
+      const query = { chatId: req.params.chatId };
+      const sortedQuery = Message.find(query).sort({ createdAt: 'desc' });
+      messages = limit ? await sortedQuery.limit(parseInt(limit)) : await sortedQuery.exec();
     } else {
-      messages = await Message.find({ chatId: req.params.chatId, _id: { $lte: startID } })
-        .sort({ createdAt: 'desc' })
-        .limit(limit ? parseInt(limit) : 10);
+      const query = { chatId: req.params.chatId, _id: { $lte: startID } };
+      const sortedQuery = Message.find(query).sort({ createdAt: 'desc' });
+      messages = limit ? await sortedQuery.limit(parseInt(limit)) : await sortedQuery.exec();
+
+      // messages = await Message.find({ chatId: req.params.chatId, _id: { $lte: startID } })
+      //   .sort({ createdAt: 'desc' })
+      //   .limit(limit ? parseInt(limit) : 10);
     }
     res.status(200).json(messages);
   } catch (error) {
