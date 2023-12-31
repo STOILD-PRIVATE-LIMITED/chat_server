@@ -69,8 +69,15 @@ app.post('/chats', async (req, res) => {
     return;
   }
   try {
-    const newChat = await Chat.create(req.body);
-    res.json(newChat);
+    req.body.participants = req.body.participants.sort();
+    const existingChat = await Chat.findOne({ participants: req.body.participants });
+
+    if (existingChat) {
+      res.json(existingChat);
+    } else {
+      const newChat = await Chat.create(req.body);
+      res.json(newChat);
+    }
   } catch (error) {
     res.status(500).json({ error: `${error}` });
     print("Error: ", error);
@@ -137,7 +144,15 @@ app.post('/messages/:chatId', async (req, res) => {
       console.log("participant found: ", user);
       if (user && user.token) {
         console.log("sending msg: to user", user);
-        sendToDevice(user.token, newMessage, newMessage.from, newMessage.txt);
+        try {
+          const title = newMessage.from;
+          const body = newMessage.txt;
+          if (user.id == newMessage.from) { sendToDevice(user.token, newMessage, null, null); }
+          else { sendToDevice(user.token, newMessage, title, body); }
+        }
+        catch (e) {
+          console.error("Error while sending notification:", e);
+        }
       }
     });
   } catch (error) {
