@@ -1,5 +1,6 @@
 const admin = require("firebase-admin");
 const serviceAccount = require(__dirname + "/mastiplay-31ca8-firebase-adminsdk-7chw1-9d85969a11.json");
+const { User } = require('./models');
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -25,19 +26,9 @@ function sendToDevice(token, payload, title, body) {
     admin.messaging().send(notification);
 }
 
-const db = admin.firestore();
 async function getUserDataById(id) {
     try {
-        const usersCollection = db.collection('users');
-        const query = usersCollection.where('id', '==', id);
-        const snapshot = await query.get();
-
-        if (snapshot.empty) {
-            console.log('No matching documents.');
-            return null;
-        }
-
-        const userData = snapshot.docs[0].data();
+        const userData = User.findOne({ id: id });
         return userData;
     } catch (error) {
         console.error('Error getting user data: ', error);

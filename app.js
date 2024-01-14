@@ -9,11 +9,10 @@ function print(...msg) {
   console.log(...msg);
 }
 
-mongoose.connect('mongodb://localhost:27017/chats', {
+mongoose.connect('mongodb://localhost:27017/mastiplay', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).catch((error) => print(error));
-print("Connected to MongoDB");
 
 const { Chat, Message, User } = require('./models');
 const validatePostRequest = require('./validations');
@@ -34,7 +33,7 @@ app.post('/users/:id', async (req, res) => {
   print(`id:`, req.params.id);
   try {
     var user = await User.findOneAndUpdate(
-      { id: req.params.id },
+      { userId: req.params.id },
       { $set: { token: token } },
       { new: true, upsert: true }
     );
@@ -140,14 +139,14 @@ app.post('/messages/:chatId', async (req, res) => {
     print("participants", participants);
     participants.forEach(async (participant) => {
       console.log("finding participant: ", participant);
-      const user = await User.findOne({ id: participant });
+      const user = await User.findOne({ userId: participant });
       console.log("participant found: ", user);
       if (user && user.token) {
         console.log("sending msg: to user", user);
         try {
           const title = newMessage.from;
           const body = newMessage.txt;
-          if (user.id == newMessage.from) { sendToDevice(user.token, newMessage, null, null); }
+          if (user.userId == newMessage.from) { sendToDevice(user.token, newMessage, null, null); }
           else { sendToDevice(user.token, newMessage, title, body); }
         }
         catch (e) {

@@ -54,23 +54,51 @@ const chatSchema = new mongoose.Schema({
     timestamps: true,
 });
 
+
 const userSchema = new mongoose.Schema({
-    id: {
+    userId: String,
+    agentId: { type: String, default: null },
+    name: String,
+    email: String,
+    photo: {
         type: String,
-        required: true,
+        default: null,
     },
-    token: {
+    phoneNumber: {
         type: String,
-        required: false,
-    }
-}, {
-    timestamps: true,
+        default: null,
+    },
+    gender: Number,
+    dob: {
+        type: Date,
+        default: null,
+    },
+    country: {
+        type: String,
+        default: null,
+    },
+    frame: {
+        type: String,
+        default: null,
+    },
+    password: {
+        type: String,
+        default: null,
+    },
+    beansCount: { type: Number, default: 0 },
+    diamondsCount: { type: Number, default: 0 },
+    followersCount: { type: Number, default: 0 },
+    followingCount: { type: Number, default: 0 },
+    friends: { type: Number, default: 0 },
+    role: { type: String, default: "user" },
+    isVerified: { type: Boolean, default: false },
+    token: { type: String, required: false }
 });
 
 const Message = mongoose.model('Message', messageSchema);
 
 const Chat = mongoose.model('Chat', chatSchema);
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model('Users', userSchema);
 
 module.exports = { Message, Chat, User };
