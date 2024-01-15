@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { exec } = require('child_process');
 
 const app = express();
 const port = 3000;
@@ -157,6 +158,24 @@ app.post('/messages/:chatId', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: `${error}` });
     print("Error: ", error);
+  }
+});
+
+app.post('/api/update-server', async (req, res) => {
+  console.log("Updating Server: ");
+  const payload = req.body;
+  if ((payload && payload.force && payload.force == true) || (payload && payload.ref === 'refs/heads/master')) {
+    exec('git reset --hard && git pull', (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error: ${error.message}`);
+        res.status(500).send('Internal Server Error');
+        return;
+      }
+      console.log(`Git Pull Successful: ${stdout}`);
+      res.status(200).send('Server Updated Successfully');
+    });
+  } else {
+    res.status(200).send('Ignoring non-master branch push event');
   }
 });
 
