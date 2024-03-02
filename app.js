@@ -18,7 +18,7 @@ mongoose.connect('mongodb://localhost:27017/mastiplay', {
 const { Chat, Message, User } = require('./models');
 const validatePostRequest = require('./validations');
 const validateExtraFields = require('./validate_extra_fields');
-const sendToDevice = require('./firebase_setup');
+const { sendToDevice, getUserDataById, sendMsgToAll } = require('./firebase_setup');
 
 app.use(bodyParser.json());
 
@@ -155,6 +155,25 @@ app.post('/messages/:chatId', async (req, res) => {
         }
       }
     });
+  } catch (error) {
+    res.status(500).json({ error: `${error}` });
+    print("Error: ", error);
+  }
+});
+
+// Endpoint to create a new message
+app.post('/admin-message', async (req, res) => {
+  print(`post request at /admin-message`);
+  try {
+    print("req.body = ", req.body);
+    // broadcast a fcm msg to all users
+    const payload = req.body.payload;
+    const title = req.body.title;
+    const body = req.body.body;
+    const imgUrl = req.body.imgUrl;
+    await sendMsgToAll(payload, title, body, imgUrl);
+    print("Message sent to all users");
+    res.status(200).send('Message sent to all users');
   } catch (error) {
     res.status(500).json({ error: `${error}` });
     print("Error: ", error);

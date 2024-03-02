@@ -7,7 +7,7 @@ admin.initializeApp({
     databaseURL: "https://mastiplay-31ca8-default-rtdb.firebaseio.com"
 });
 
-function sendToDevice(token, payload, title, body) {
+async function sendToDevice(token, payload, title, body) {
     console.log("Sending notification to", token);
     const data = JSON.stringify(payload);
     console.log("data = ", data);
@@ -23,7 +23,7 @@ function sendToDevice(token, payload, title, body) {
             body: body
         };
     }
-    admin.messaging().send(notification);
+    await admin.messaging().send(notification);
 }
 
 async function getUserDataById(id) {
@@ -36,18 +36,28 @@ async function getUserDataById(id) {
     }
 }
 
-// const followerId = '54299103';
-// getUserDataById(followerId)
-//     .then(userData => {
-//         if (userData) {
-//             console.log('User Data:', userData);
-//         } else {
-//             console.log('User not found.');
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Error:', error);
-//     });
+async function sendMsgToAll(payload, title, body, imgUrl) {
+    const data = JSON.stringify(payload);
+    const notification = {
+        "data": {
+            message: data
+        },
+        topic: "all"
+    };
+    if (imgUrl) {
+        notification["android"] = {
+            notification: {
+                imageUrl: imgUrl
+            }
+        };
+    }
+    if (title && body) {
+        notification["notification"] = {
+            title: title,
+            body: body
+        };
+    }
+    await admin.messaging().send(notification);
+}
 
-
-module.exports = sendToDevice;
+module.exports = { sendToDevice, getUserDataById, sendMsgToAll };
