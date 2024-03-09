@@ -20,8 +20,17 @@ async function sendToDevice(token, payload, title, body) {
     if (title && body) {
         notification["notification"] = {
             title: title,
-            body: body
         };
+        if (body.toString().startsWith("![image](")) {
+            const imgUrl = body.toString().split("![image](")[1].split(")")[0];
+            notification["android"] = {
+                notification: {
+                    imageUrl: imgUrl
+                }
+            };
+        } else {
+            notification["notification"].body = body;
+        }
     }
     await admin.messaging().send(notification);
 }

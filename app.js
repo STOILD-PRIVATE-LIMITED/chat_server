@@ -108,6 +108,18 @@ app.get('/chats/all/:userId', async (req, res) => {
   }
 });
 
+// Endpoint to delete a msg by ID
+app.delete('/messages/:id', async (req, res) => {
+  print(`delete request at /messages/${req.params.id}`);
+  try {
+    const message = await Message.findByIdAndDelete(req.params.id);
+    res.json(message);
+  } catch (error) {
+    res.status(500).json({ error: `${error}` });
+    print("Error: ", error);
+  }
+});
+
 // Endpoint to get a message by ID
 // app.get('/messages/:id', async (req, res) => {
 //   print(`get request at /messages/${req.params.userId}`);
@@ -218,6 +230,17 @@ app.get('/messages/:chatId', async (req, res) => {
       //   .limit(limit ? parseInt(limit) : 10);
     }
     res.status(200).json(messages);
+  } catch (error) {
+    res.status(500).json({ error: `${error}` });
+    print("Error: ", error);
+  }
+});
+
+app.get('/last-message/:chatId', async (req, res) => {
+  print(`get request at /last-message/`, req.params.chatId);
+  try {
+    const message = await Message.findOne({ chatId: req.params.chatId }).sort({ createdAt: 'desc' });
+    res.status(200).json(message);
   } catch (error) {
     res.status(500).json({ error: `${error}` });
     print("Error: ", error);
