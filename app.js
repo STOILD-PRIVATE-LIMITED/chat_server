@@ -10,7 +10,7 @@ function print(...msg) {
   console.log(...msg);
 }
 
-mongoose.connect('mongodb://localhost:27017/mastiplay', {
+mongoose.connect('mongodb://0.0.0.0:27017/mastiplay1', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).catch((error) => print(error));
